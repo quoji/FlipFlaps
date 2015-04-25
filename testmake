@@ -1,0 +1,5 @@
+flipflaps: *.cpp find_solution.o
+	g++ -std=c++14 *.cpp find_solution.o  -lfltk -lfltk_images
+
+run: flipflaps
+	./a.out
