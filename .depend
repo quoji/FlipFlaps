@@ -1,0 +1,13 @@
+FlipFlaps.o: FlipFlaps.cpp std_lib_facilities_4.h Game_windows.h Window.h \
+ Point.h Graph.h GUI.h
+Game_windows.o: Game_windows.cpp std_lib_facilities_4.h Game_windows.h \
+ Window.h Point.h Graph.h GUI.h find_solution.h High_scores.h
+Graph.o: Graph.cpp Graph.h Point.h std_lib_facilities_4.h
+GUI.o: GUI.cpp GUI.h Window.h std_lib_facilities_4.h Point.h Graph.h
+High_scores.o: High_scores.cpp std_lib_facilities_4.h High_scores.h
+Main_window.o: Main_window.cpp std_lib_facilities_4.h Main_window.h \
+ Window.h Point.h Graph.h GUI.h
+Simple_window.o: Simple_window.cpp Simple_window.h GUI.h Window.h \
+ std_lib_facilities_4.h Point.h Graph.h
+Window.o: Window.cpp Window.h std_lib_facilities_4.h Point.h Graph.h \
+ GUI.h
