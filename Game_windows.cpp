@@ -26,7 +26,7 @@ int diff_height = 50;
 int num_flips = 0;
 int score = 0, num_arranged = 0;
 
-string player_name;
+string player_name = "";
 
 fstream scores;
 
@@ -44,7 +44,7 @@ vector<High_scores> player_scores;
 
 Image main_screen(Point(0, 0), "FlipFlaps.jpg");
 Image trophy(Point(300,150),"winner.gif");
-Image defeat(Point(400,250),"defeat.jpg");
+Image defeat(Point(400,250),"defeat.gif");
 
 Rectangle back_for_now(Point(0, 0), x_max(), y_max());
 Rectangle tabletop(Point(250,800-250), 500, 80); 
@@ -56,7 +56,7 @@ Text score_2(Point(400, 200), "");
 Text score_3(Point(400, 300), "");
 Text score_4(Point(400, 400), "");
 Text score_5(Point(400, 500), "");
-Text inst_1(Point(x_max()/2 - 40, 100), "");
+Text inst_1(Point(x_max() / 2 - 40, 100), "");
 Text inst_2(Point(50, 140), "");
 Text inst_3(Point(50, 180), "");
 Text inst_4(Point(50, 220), "");
@@ -82,13 +82,13 @@ bool sort_scores(High_scores &sc_1, High_scores &sc_2)
 
 Game_windows::Game_windows(Point xy, int w, int h, const string& title) :
 	Window(xy, w, h, title),
-	play(Point((x_max()/2 - width / 2), 300), width / 2, height, "Play", cb_play_game),
-	instructions(Point((x_max()/2 - width / 2), 400), width / 2, height, "Instructions", cb_show_inst),
-	highscores(Point((x_max()/2 - width / 2), 500), width / 2, height, "Highscores", cb_show_high),
-	exit(Point((x_max()/2 - width / 2), 600), width / 2, height, "Exit", cb_exit_game),
-	Ok(Point((x_max() / 2 - width / 2), 600), width, height, "Return To Menu", cb_go_back),
-	replay(Point(400+(x_max() / 2 - width / 2), 600), width/2, height, "Play Again", cb_replay),
-	menu_button(Point((x_max() / 2 - width / 2)-100, 600), width/2, height, "Main Menu", cb_game_go_back),
+	play(Point((x_max() / 2 - width / 2 + 20), 330), width-100, height-30, "Play", cb_play_game),
+	instructions(Point((x_max() / 2 - width / 2 + 20), 430), width-100, height-30, "Instructions", cb_show_inst),
+	highscores(Point((x_max() / 2 - width / 2 + 20), 530), width-100, height-30, "Highscores", cb_show_high),
+	exit(Point((x_max() / 2 - width / 2 + 20), 630), width-100, height-30, "Exit", cb_exit_game),
+	Ok(Point((x_max() / 2 - width / 2 + 50), 600), width-100, height-30, "Return To Menu", cb_go_back),
+	replay(Point(400+(x_max() / 2 - width / 2), 600), width / 2, height, "Play Again", cb_replay),
+	menu_button(Point((x_max() / 2 - width / 2)-100, 600), width / 2, height, "Main Menu", cb_game_go_back),
 	enter(Point(530, 220), 100, 50, "Enter", cb_enter_initials),
 	Initials(Point(430,220), 100,50, ""),
 	lvl_2(Point(100+offset*1,500), diff_width, diff_height, "2", cb_hard2),
@@ -100,12 +100,13 @@ Game_windows::Game_windows(Point xy, int w, int h, const string& title) :
 	lvl_8(Point(100+offset*7,500), diff_width, diff_height, "8", cb_hard8),
 	lvl_9(Point(100+offset*8,500), diff_width, diff_height, "9", cb_hard9)
 	{
+		attach(Initials);
 		attach(main_screen);
 		attach(play);			//Shows all of the buttons for the main menu
 		attach(instructions);
 		attach(highscores);
 		attach(exit);
-		attach(Initials);
+		
 		attach_hard_menu();
 		attach(enter);
 		
@@ -129,11 +130,12 @@ void Game_windows::play_game()
 	detach_menu();
 	detach(back_for_now);
 	
-	//set_background();
-	attach(lvl_diff); 
-	attach(username);
 	attach(Initials);
 	attach(enter);
+	set_background();
+	attach(lvl_diff); 
+	attach(username);
+	
 	attach_hard_menu();
 	attach(Ok);
 }
@@ -146,7 +148,7 @@ void Game_windows::show_inst()			//Goes to instruction page when button clicked
 	//detach(game_title);
 	detach(back_for_now);
 	
-	//set_background();
+	set_background();
 	get_inst();
 	attach(Ok);
 }
@@ -159,7 +161,7 @@ void Game_windows::show_high()		//Goes to highscores page when button clicked
 	//detach(game_title);
 	detach(back_for_now);
 	
-	//set_background();
+	set_background();
 	attach(Ok);
 	
 	no_high.set_label("No Highscores Yet");
@@ -191,13 +193,11 @@ void Game_windows::make_file()
 
 void Game_windows::read_from_file()
 {
-
-	string line, initials;
-	int score, length;
-	stringstream input;
+	string initials;
+	int points, length;
 	
 	initials = "";
-	score = 0;
+	points = 0;
 	
 	cout << "File is open\n";
 		
@@ -210,32 +210,32 @@ void Game_windows::read_from_file()
 		cout << "Blah\n";
 		attach(no_high);
 	}
-		
+	
 	else
 	{
 		scores.seekg(0);
-			
-		while (!scores.eof())
+		
+		if (!scores.eof())
 		{
-			scores >> initials >> score;
-			
-			cout << initials << ' ' << scores << '\n';
+			while (!scores.eof())
+			{
+				scores >> initials >> points;
 				
-			player_scores.push_back(High_scores(initials, score));
+				cout << initials << ' ' << points << '\n';
+					
+				player_scores.push_back(High_scores(initials, points));
+			}
+				
+			sort(player_scores.begin(), player_scores.end(), sort_scores);
+				
+			if (player_scores.size() >= 5)
+				set_score(5);
+					
+			else 
+				set_score(player_scores.size());
 		}
-			
-		sort(player_scores.begin(), player_scores.end(), sort_scores);
-			
-		for (int i = 0; i < player_scores.size(); ++i)
-			//cout << "Initials: " << player_scores[i].get_initials() << "\nScore: " << player_scores[i].get_score() << '\n';
-			
-		if (player_scores.size() >= 5)
-			set_score(5);
-				
-		else 
-			set_score(player_scores.size());
 	}
-			
+
 	scores.close();
 }
 
@@ -243,23 +243,26 @@ void Game_windows::write_to_file()
 {	
 	scores.open("Scores.txt", ios::app);
 	
-	string output;
-	
 	if (!scores.is_open())
 	{
 		make_file();
 		
 		scores.open("Scores.txt");
+		
+		cout << "I made a file\n";
 	}
-	//scores.seekg(0, scores.end);
+
+	if (player_name.size() != 0)
+	{
+		scores << player_name << ' ' << to_string(score);
+		
+		cout << "I tried to write to the file\n";
+		
+		scores.close();
+	}
 	
-	//output = '\n' + player_name + ' ' + to_string(score);
-	
-	scores << player_name << ' ' << to_string(score);
-	
-	cout << "I tried to write to the file\n";
-	
-	scores.close();
+	else
+		scores.close();
 }
 void Game_windows::set_score(int num)
 {	
@@ -499,8 +502,8 @@ void Game_windows::main_title()
 
 void Game_windows::set_background()
 {
-	back_for_now.set_fill_color(Color::white);
-	back_for_now.set_color(Color::white);
+	back_for_now.set_fill_color(Color::dark_cyan);
+	back_for_now.set_color(Color::black);
 	
 	attach(back_for_now);
 }
@@ -716,6 +719,7 @@ void Game_windows::you_win()
 	cout << "The game has ended. Either the user made\n" 
 		<< "too many moves or arranged the pancakes in order\n"
 		<< "The score was " << calculate_score(num_flips) << '\n';
+	cout << "Player_size: " << player_name.size() << '\n';
 		
 	write_to_file();
 		
@@ -742,6 +746,7 @@ void Game_windows::you_lose()
 	cout << "The game has ended. Either the user made\n" 
 		<< "too many moves or arranged the pancakes in order\n"
 		<< "The score was " << calculate_score(num_flips) << '\n';
+	cout << "Player_size: " << player_name.size() << '\n';
 		
 	write_to_file();
 		
@@ -798,8 +803,6 @@ void Game_windows::do_flip(int flip_id)
 	even_flip(num_to_flip, p_cakes, midpoint);
 	
 	cout << "I'm at the end of do flip\n";
-	
-	return;
 }
 
 
