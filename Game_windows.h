@@ -57,8 +57,9 @@ struct Game_windows : Graph_lib::Window
 		void detach_game();
 		
 		void do_replay();
-		void main_title();
 		void set_background();
+		void detach_background();
+		void initials_background();
 
 		void set_difficulty(int i);
 		int run_game(int p_cakes);
@@ -73,7 +74,6 @@ struct Game_windows : Graph_lib::Window
 		
 		int calculate_score(int flips);
 		void do_flip(int flip_id);
-		void game_over();
 		void you_win();
 		void you_lose();
 		

@@ -30,8 +30,6 @@ string player_name = "";
 
 fstream scores;
 
-Color maroon(fl_rgb_color(80, 0, 0));
-Color brown(fl_rgb_color(153, 102, 51));
 Color brown_trim(fl_rgb_color(255, 222, 176));
 Color dark_brown(fl_rgb_color(176,102,5));
 Color light_brown(fl_rgb_color(217,140,33));
@@ -46,7 +44,11 @@ Image main_screen(Point(0, 0), "FlipFlaps.jpg");
 Image trophy(Point(300,150),"winner.gif");
 Image defeat(Point(400,250),"defeat.gif");
 
-Rectangle back_for_now(Point(0, 0), x_max(), y_max());
+Rectangle background(Point(0, 0), x_max(), y_max());
+Rectangle initials_screen_1(Point(0, 270), x_max(), 529);
+Rectangle initials_screen_2(Point(0, 0), 429, y_max());
+Rectangle initials_screen_3(Point(0, 0), x_max(), 219);
+Rectangle initials_screen_4(Point(530, 0), 470, y_max());
 Rectangle tabletop(Point(250,800-250), 500, 80); 
 Rectangle tableleg(Point(275,800-250), 50, 200);
 Rectangle tableleg2(Point(675,800-250), 50, 200);
@@ -56,22 +58,21 @@ Text score_2(Point(400, 200), "");
 Text score_3(Point(400, 300), "");
 Text score_4(Point(400, 400), "");
 Text score_5(Point(400, 500), "");
-Text inst_1(Point(x_max() / 2 - 40, 100), "");
-Text inst_2(Point(50, 140), "");
-Text inst_3(Point(50, 180), "");
-Text inst_4(Point(50, 220), "");
-Text inst_5(Point(50, 260), "");
-Text inst_6(Point(50, 300), "");
-Text inst_7(Point(50, 340), "");
-Text inst_8(Point(50, 380), "");
-Text inst_9(Point(50, 420), "");
-//Text game_title(Point(400, 100), "");
+Text inst_1(Point(x_max() / 2 - 300, 100), "");
+Text inst_2(Point(50, 180), "");
+Text inst_3(Point(50, 220), "");
+Text inst_4(Point(50, 260), "");
+Text inst_5(Point(50, 300), "");
+Text inst_6(Point(50, 340), "");
+Text inst_7(Point(50, 380), "");
+Text inst_8(Point(50, 420), "");
 Text no_high(Point(300, 100), "");
 Text you_win_txt(Point(260, 140), "");
 Text you_lose_txt(Point(400, 200), "");
 Text your_score(Point(50,50),"");
 Text flips_to_win(Point(50,100),"");
-Text lvl_diff(Point(380,485), ""); 
+Text lvl_diff(Point(380,485), "");
+//Text player_initials(Point(425, 300), ""); 
 Text username(Point(430, 200), "");
 
 
@@ -82,11 +83,11 @@ bool sort_scores(High_scores &sc_1, High_scores &sc_2)
 
 Game_windows::Game_windows(Point xy, int w, int h, const string& title) :
 	Window(xy, w, h, title),
-	play(Point((x_max() / 2 - width / 2 + 20), 330), width-100, height-30, "Play", cb_play_game),
-	instructions(Point((x_max() / 2 - width / 2 + 20), 430), width-100, height-30, "Instructions", cb_show_inst),
-	highscores(Point((x_max() / 2 - width / 2 + 20), 530), width-100, height-30, "Highscores", cb_show_high),
-	exit(Point((x_max() / 2 - width / 2 + 20), 630), width-100, height-30, "Exit", cb_exit_game),
-	Ok(Point((x_max() / 2 - width / 2 + 50), 600), width-100, height-30, "Return To Menu", cb_go_back),
+	play(Point((x_max() / 2 - width / 2 + 20), 330), width - 100, height - 30, "Play", cb_play_game),
+	instructions(Point((x_max() / 2 - width / 2 + 20), 430), width - 100, height - 30, "Instructions", cb_show_inst),
+	highscores(Point((x_max() / 2 - width / 2 + 20), 530), width - 100, height - 30, "Highscores", cb_show_high),
+	exit(Point((x_max() / 2 - width / 2 + 20), 630), width - 100, height - 30, "Exit", cb_exit_game),
+	Ok(Point((x_max() / 2 - width / 2 + 75), 635), width - 150, height - 50, "Return To Menu", cb_go_back),
 	replay(Point(400+(x_max() / 2 - width / 2), 600), width / 2, height, "Play Again", cb_replay),
 	menu_button(Point((x_max() / 2 - width / 2)-100, 600), width / 2, height, "Main Menu", cb_game_go_back),
 	enter(Point(530, 220), 100, 50, "Enter", cb_enter_initials),
@@ -113,27 +114,27 @@ Game_windows::Game_windows(Point xy, int w, int h, const string& title) :
 		detach(enter);
 		detach(Initials);
 		detach_hard_menu();
-		
-		main_title();
 	}
 	
 void Game_windows::play_game()
-{
-	cout << "Play the game\n";		//Used for button testing for now
-	
+{	
 	username.set_label("Enter Initials");
 	username.set_font_size(30);
+	
+	//player_initials.set_label("Your initials are: ");
+	//player_initials.set_font_size(30);
+	
 	lvl_diff.set_label("Select Difficulty");
 	lvl_diff.set_font_size(30);
 	
-	//detach(game_title);
 	detach_menu();
-	detach(back_for_now);
+	detach(background);
 	
 	attach(Initials);
 	attach(enter);
-	set_background();
-	attach(lvl_diff); 
+	initials_background();
+	attach(lvl_diff);
+	//attach(player_initials);
 	attach(username);
 	
 	attach_hard_menu();
@@ -141,12 +142,9 @@ void Game_windows::play_game()
 }
 
 void Game_windows::show_inst()			//Goes to instruction page when button clicked
-{
-	cout << "Show the instructions\n";
-	
+{	
 	detach_menu();
-	//detach(game_title);
-	detach(back_for_now);
+	detach(background);
 	
 	set_background();
 	get_inst();
@@ -154,12 +152,9 @@ void Game_windows::show_inst()			//Goes to instruction page when button clicked
 }
 
 void Game_windows::show_high()		//Goes to highscores page when button clicked
-{
-	cout << "Show the highscores\n";
-	
+{	
 	detach_menu();
-	//detach(game_title);
-	detach(back_for_now);
+	detach(background);
 	
 	set_background();
 	attach(Ok);
@@ -187,8 +182,6 @@ void Game_windows::make_file()
 	scores.close();
 	scores.open("Scores.txt", ios::in);
 	scores.close();
-		
-	cout << "File created\n";
 }
 
 void Game_windows::read_from_file()
@@ -199,17 +192,12 @@ void Game_windows::read_from_file()
 	initials = "";
 	points = 0;
 	
-	cout << "File is open\n";
-		
 	scores.seekg(0, ios::end);
-		
+	
 	length = scores.tellg();
-		
+	
 	if (length == 0)
-	{
-		cout << "Blah\n";
 		attach(no_high);
-	}
 	
 	else
 	{
@@ -220,9 +208,7 @@ void Game_windows::read_from_file()
 			while (!scores.eof())
 			{
 				scores >> initials >> points;
-				
-				cout << initials << ' ' << points << '\n';
-					
+		
 				player_scores.push_back(High_scores(initials, points));
 			}
 				
@@ -230,7 +216,7 @@ void Game_windows::read_from_file()
 				
 			if (player_scores.size() >= 5)
 				set_score(5);
-					
+			
 			else 
 				set_score(player_scores.size());
 		}
@@ -248,15 +234,11 @@ void Game_windows::write_to_file()
 		make_file();
 		
 		scores.open("Scores.txt");
-		
-		cout << "I made a file\n";
 	}
 
 	if (player_name.size() != 0)
 	{
 		scores << player_name << ' ' << to_string(score);
-		
-		cout << "I tried to write to the file\n";
 		
 		scores.close();
 	}
@@ -264,6 +246,7 @@ void Game_windows::write_to_file()
 	else
 		scores.close();
 }
+
 void Game_windows::set_score(int num)
 {	
 	switch (num)
@@ -294,7 +277,6 @@ void Game_windows::set_score(int num)
 			attach(score_1);
 	}
 }
-
 string Game_windows::get_info(int which_one)
 {
 	string player, together;
@@ -308,17 +290,20 @@ string Game_windows::get_info(int which_one)
 }
 
 void Game_windows::exit_game()		//Exits the game
-{
-	cout << "Exit the game\n";
-	
+{	
 	hide();
 }
 
 void Game_windows::enter_initials()
 {
-	player_name = Initials.get_string();
+	//string three_initials;
 	
-	cout << player_name << '\n';
+	player_name = Initials.get_string();
+	//three_initials = player_name.substr(0, 3);
+	
+	//player_initials.set_label("Your initials are: " + three_initials);
+	
+	//Fl::redraw();
 }
 
 void Game_windows::detach_menu()	//takes off the menu buttons
@@ -364,10 +349,7 @@ void Game_windows::cb_enter_initials(Address, Address pw)
 	
 void Game_windows::go_back()	//goes back to the main menu
 {	
-	cout << "numflips is " << num_flips << endl;
-	
-	num_flips=0;
-	//attach(Initials);
+	num_flips = 0;
 	
 	detach(Ok);
 	detach(enter);
@@ -378,23 +360,19 @@ void Game_windows::go_back()	//goes back to the main menu
 	detach(you_lose_txt);
 	detach(lvl_diff);
 	detach(username);
+	//detach(player_initials);
 	detach_scores();
 	detach_game();
 	detach(trophy);
 	detach(defeat);
-	
-	cout << "I'm right before detaching initials\n";
-	
 	detach(Initials);
-	
-	cout << "Go back\n";
+	detach_background();
 	
 	attach(main_screen);
 	attach(play);
 	attach(instructions);
 	attach(highscores);
 	attach(exit);
-	main_title();
 }
 
 void Game_windows::detach_scores()
@@ -422,11 +400,19 @@ void Game_windows::get_inst()		//game instructions will go here
 	inst_2.set_label("The purpose of the game is to flip an unordered stack of pancakes until they are in the ");
 	inst_3.set_label("correct order while trying to use the least number of flips. When you start the game, a stack of");
 	inst_4.set_label("unordered pancakes will appear before your eyes. Click the buttons next to the pancakes to ");
-	inst_5.set_label("indicate the place where you want to insert the spatula. When you feel like you’re ready to flip");
-	inst_6.set_label("the stack, click the ‘Flip’ button. Once you’re able to get the stack in the correct order, the game");
-	inst_7.set_label("will be over and your score will be displayed. However, the game will also be over if you make ");
-	inst_8.set_label("more moves than the ones that are necessary. At this point, the game will stop, and you will no ");
-	inst_9.set_label("longer be able to continue."); 
+	inst_5.set_label("indicate where you want to flip the stack. Once you're able to get the stack in the correct");
+	inst_6.set_label("order, the game will be over and your score will be displayed. However, the game will also be");
+	inst_7.set_label("over if you make more moves than the ones that are necessary. At this point, the game will stop,");
+	inst_8.set_label("and you will no longer be able to continue.");
+	
+	inst_1.set_font(FL_SCREEN);
+	inst_2.set_font(FL_SCREEN);
+	inst_3.set_font(FL_SCREEN);
+	inst_4.set_font(FL_SCREEN);
+	inst_5.set_font(FL_SCREEN);
+	inst_6.set_font(FL_SCREEN);
+	inst_7.set_font(FL_SCREEN);
+	inst_8.set_font(FL_SCREEN);
 	
 	inst_1.set_font_size(42);
 	inst_2.set_font_size(21);
@@ -436,7 +422,6 @@ void Game_windows::get_inst()		//game instructions will go here
 	inst_6.set_font_size(21);
 	inst_7.set_font_size(21);
 	inst_8.set_font_size(21);
-	inst_9.set_font_size(21);
 	
 	attach(inst_1);
 	attach(inst_2);
@@ -446,7 +431,6 @@ void Game_windows::get_inst()		//game instructions will go here
 	attach(inst_6);
 	attach(inst_7);
 	attach(inst_8);
-	attach(inst_9);
 }
 
 void Game_windows::detach_inst()	//takes off instructions when 'Ok' clicked
@@ -459,7 +443,6 @@ void Game_windows::detach_inst()	//takes off instructions when 'Ok' clicked
 	detach(inst_6);
 	detach(inst_7);
 	detach(inst_8);
-	detach(inst_9);
 }
 
 void Game_windows::attach_hard_menu()
@@ -486,27 +469,44 @@ void Game_windows::detach_hard_menu()
 	lvl_9.hide();
 }
 
-
 //----------------------------------------------------------------------------
-
-void Game_windows::main_title()
-{
-	/*game_title.set_label("FlipFlaps!");
-	
-	game_title.set_color(maroon);
-	
-	game_title.set_font_size(50);
-	
-	attach(game_title);*/
-}
 
 void Game_windows::set_background()
 {
-	back_for_now.set_fill_color(Color::dark_cyan);
-	back_for_now.set_color(Color::black);
+	background.set_fill_color(Color::dark_cyan);
+	background.set_color(Color::black);
 	
-	attach(back_for_now);
+	attach(background);
 }
+
+void Game_windows::initials_background()
+{
+	initials_screen_1.set_fill_color(Color::dark_cyan);
+	initials_screen_1.set_color(Color::dark_cyan);
+	
+	initials_screen_2.set_fill_color(Color::dark_cyan);
+	initials_screen_2.set_color(Color::dark_cyan);
+	
+	initials_screen_3.set_fill_color(Color::dark_cyan);
+	initials_screen_3.set_color(Color::dark_cyan);
+	
+	initials_screen_4.set_fill_color(Color::dark_cyan);
+	initials_screen_4.set_color(Color::dark_cyan);
+	
+	attach(initials_screen_1);
+	attach(initials_screen_2);
+	attach(initials_screen_3);
+	attach(initials_screen_4);
+}
+
+void Game_windows::detach_background()
+{
+	detach(initials_screen_1);
+	detach(initials_screen_2);
+	detach(initials_screen_4);
+	detach(initials_screen_4);
+}
+
 //----------------------------------------------------------------------------
 
 void Game_windows::cb_hard2(Address, Address pw)
@@ -557,7 +557,6 @@ void Game_windows::cb_hard9(Address, Address pw)
 	reference_to<Game_windows>(pw).set_difficulty(9);
 }
 
-
 //----------------------------------------------------------------------------
 
 
@@ -568,33 +567,30 @@ void Game_windows::set_difficulty(int diff)
 	detach(lvl_diff);
 	detach(Initials);
 	detach(enter);
+	detach_background();
+	
+	set_background();
 	
 	int num_pancakes = diff;
 	
-	cout << "Lvl " << diff << '\n';
-	
 	run_game(diff);
 }
-	
 
 //----------------------------------------------------------------------------
 
 int Game_windows::run_game(int p_cakes)
 {
-	int pwidth, pheight, table, hscaler, wscaler, pancakeY;
+	int pwidth, pheight, table, wscaler, pancakeY;
 	int flip_Y, flip_X, flip_width, flip_height;
+	bool lose;
 	
 	wscaler = 50;	//pancake width
 	table = 250;	//bottom margin. Pancakes rest on this
 	pheight = 50;	//height for all pancakes
 	flip_X = 160;
 	flip_width = 80;
-	flip_height = 50;	//same as pancake height 
-
-	//detach(game_title);
-
-		cout << "I'm at the beginning of flip\n";
-	bool lose = false;
+	flip_height = 50;	//same as pancake height
+	lose = false;
 		
 	handle_pancakes(p_cakes, pwidth, wscaler, pancakeY, table, pheight);
 
@@ -602,33 +598,32 @@ int Game_windows::run_game(int p_cakes)
 						flip_width,flip_height);
 
 	score = calculate_score(0);
+	
 	your_score.set_label("Score: "+ to_string(score));
 	your_score.set_font_size(20);
-	attach(your_score);
-
-	attach(flips_to_win);
+	
 	tableleg.set_fill_color(dark_brown);
 	tableleg2.set_fill_color(dark_brown);
 	tabletop.set_fill_color(dark_brown);
+
+	attach(flips_to_win);
+	attach(your_score);
 	attach(tableleg);
 	attach(tableleg2);
 	attach(tabletop);
-
-	
-
-	cout <<"Game's running\n";
 }
 
 void Game_windows::flip() //happens when a button is clicked
 {
-	cout << "I'm at the beginning of flip\n";
 	bool lose = false;
+	bool win = false;
 	
 	++num_flips;
 	score = calculate_score(num_flips);
+	
 	your_score.set_label("Score: "+ to_string(score));
 
-	if(score != 0 && !lose)
+	if (!lose)
 	{	
 		int flip_id, pheight, pancakeY, flip_Y, h, table;
 		
@@ -643,19 +638,13 @@ void Game_windows::flip() //happens when a button is clicked
 		{
 			int flip_id = 1 + ((Fl::event_y() - flip_Y) / h); //calculates which button clicked
 			
-			cout << "clicked button no. " << flip_id << endl;
-			
 			do_flip(flip_id);
 		}
 	}
-
-	else if (score == 0 || score < 0) {
-		you_lose();
-		lose = true;
-	}
-
-	if (!lose)
+	
+	if (!lose && !win)			//check for win
 	{
+		cout<<"checking for win"<<endl;
 		for (int i = 0; i < widths.size() - 1; ++i) //check if game has been won
 		{
 			if (pancakes[i]->width() > pancakes[i + 1]->width())
@@ -663,18 +652,31 @@ void Game_windows::flip() //happens when a button is clicked
 		}
 		
 		if (num_arranged == widths.size() - 1)
+		{
+			win = true;
 			you_win();
-
+		}
 		else
+		{	
 			num_arranged = 0;
-		
-		cout << "I'm at the end of flip\n";
+			if(score==0&&!win)
+			{
+				you_lose();	
+				lose = true;
+			}
+		}
 	}
+
+	else if (score == 0 || score < 0) 
+	{
+		you_lose();
+		lose = true;
+	}
+
 }
 
 void Game_windows::cb_flip(Address, Address pw)
 {	
-	reference_to<Game_windows>(pw).redraw();
 	reference_to<Game_windows>(pw).flip();
 }
 
@@ -682,9 +684,7 @@ void Game_windows::cb_flip(Address, Address pw)
 
 int Game_windows::calculate_score(int flips)
 {	
-
 	int score, min_flips;
-
 	
 	reverse(widths.begin(), widths.end());
 	
@@ -693,8 +693,6 @@ int Game_windows::calculate_score(int flips)
 	reverse(widths.begin(), widths.end());
 	
 	min_flips = solution->size();
-	
-	cout<<"solution size is "<<solution->size()<<endl;
 	
 	flips_to_win.set_label("You've used " + to_string(flips) + " flip(s)");
 	flips_to_win.set_font_size(20);
@@ -705,7 +703,8 @@ int Game_windows::calculate_score(int flips)
 void Game_windows::you_win()
 {
 	score = calculate_score(num_flips);
-	you_win_txt.set_label("You Win! Score: "+to_string(score));
+	
+	you_win_txt.set_label("You Win! Score: " + to_string(score));
 	you_win_txt.set_font_size(50);
 	
 	attach(you_win_txt);
@@ -715,11 +714,6 @@ void Game_windows::you_win()
 	detach(tabletop);
 	detach(tableleg);
 	detach(tableleg2);
-
-	cout << "The game has ended. Either the user made\n" 
-		<< "too many moves or arranged the pancakes in order\n"
-		<< "The score was " << calculate_score(num_flips) << '\n';
-	cout << "Player_size: " << player_name.size() << '\n';
 		
 	write_to_file();
 		
@@ -731,8 +725,9 @@ void Game_windows::you_win()
 
 void Game_windows::you_lose()
 {
-	you_lose_txt.set_label("You Lose!");
 	score = calculate_score(num_flips);
+	
+	you_lose_txt.set_label("You Lose!");
 	you_lose_txt.set_font_size(50);
 	
 	attach(you_lose_txt);
@@ -742,14 +737,8 @@ void Game_windows::you_lose()
 	detach(tabletop);
 	detach(tableleg);
 	detach(tableleg2);
-	
-	cout << "The game has ended. Either the user made\n" 
-		<< "too many moves or arranged the pancakes in order\n"
-		<< "The score was " << calculate_score(num_flips) << '\n';
-	cout << "Player_size: " << player_name.size() << '\n';
 		
 	write_to_file();
-		
 	
 	num_flips = 0;
 	num_arranged = 0;
@@ -759,31 +748,28 @@ void Game_windows::you_lose()
 
 void Game_windows::detach_game()
 {		
-		for (int i = 0; i < pancakes.size(); ++i)
-		{
-			Rectangle* pancake = (pancakes[i]);
-			Rectangle& pancake_ref = (*pancake);
-			
-			Button* flip_button = (flip_info[i].button_ptr);
-			Button& flip_ref = (*flip_button);
-
-			Line* line = lines[i];
-			Line& line_ref = (*line);
-			
-			detach(line_ref);
-			detach(pancake_ref);
-			detach(flip_ref);
-			detach(your_score);
-			detach(flips_to_win);
-		}
+	for (int i = 0; i < pancakes.size(); ++i)
+	{
+		Rectangle* pancake = (pancakes[i]);
+		Rectangle& pancake_ref = (*pancake);
+		
+		Button* flip_button = (flip_info[i].button_ptr);
+		Button& flip_ref = (*flip_button);
+		
+		Line* line = lines[i];
+		Line& line_ref = (*line);
+		
+		detach(line_ref);
+		detach(pancake_ref);
+		detach(flip_ref);
+		detach(your_score);
+		detach(flips_to_win);
+	}
 	
 	pancakes.erase(pancakes.begin(), pancakes.end());
 	flip_info.erase(flip_info.begin(), flip_info.end());
 	lines.erase(lines.begin(),lines.end());
 	widths.erase(widths.begin(), widths.end());
-	
-	cout << "Size of pancake vector = " << pancakes.size() << '\n';
-	cout << "Size of button vector = " << flip_info.size() << '\n';
 
 	detach(Ok);
 }
@@ -791,9 +777,7 @@ void Game_windows::detach_game()
 //----------------------------------------------------------------------------
 
 void Game_windows::do_flip(int flip_id)
-{
-	cout << "I'm at the beginning of do_flip\n";
-	
+{	
 	int num_to_flip = flip_id;
 	int midpoint = num_to_flip / 2;
 
@@ -801,31 +785,23 @@ void Game_windows::do_flip(int flip_id)
 
 	odd_flip(num_to_flip, p_cakes, midpoint);
 	even_flip(num_to_flip, p_cakes, midpoint);
-	
-	cout << "I'm at the end of do flip\n";
 }
 
 
 void Game_windows::handle_pancakes(int p_cakes, int pwidth, int wscaler, 
 									int pancakeY, int table, int pheight)
 {
-	random_device rd; //used for shuffling our vector
+	random_device rd; 	//used for shuffling our vector
 	mt19937 generator(rd());	//random generator parameter
 	
 	for (int i = 1; i <= p_cakes; ++i)	//our widths, which will be scaled by wscaler
-	{
 		widths.push_back(i);
-		
-		cout << "Rectangle widths: " << widths[i - 1] << '\n';
-	}
 	
 	shuffle(widths.begin(), widths.end(), generator); //shuffles our vector
 	
 	for (int i = 1; i <= p_cakes; ++i)
 	{	
 		pwidth = widths[i-1] * wscaler;
-		
-		cout << "pwidth: " << pwidth << '\n';
 		
 		pancakeY = (y_max() - table) - pheight * i;
 		
@@ -838,36 +814,33 @@ void Game_windows::handle_pancakes(int p_cakes, int pwidth, int wscaler,
 		
 		attach(pancake_ref);
 	}
-	cout << "Pancakes were generated.\n";
 }
 
 void Game_windows::generate_flip_buttons(int p_cakes, int pancakeY, int table, int pheight, int flip_Y, 
 									int flip_X, int flip_width, int flip_height)
 {
+	int line_width = 300 / p_cakes;
+	
 	for (int i = 0; i < p_cakes; ++i)
 	{
 		pancakeY = (y_max() - table) - pheight * i;	
 		flip_Y = pancakeY - pheight / 2;
 		
-		Button* flip_button = new Button (Point(flip_X, flip_Y), flip_width, flip_height, "FLIP", cb_flip);
+		Button* flip_button = new Button(Point(flip_X, flip_Y), flip_width, flip_height, "FLIP", cb_flip);
 		Button& flip_ref = (*flip_button);
 
 		flip_info.push_back({i + 1, flip_button});	//stores buttons
 		
-		int line_width = 300/p_cakes;
-		Line* line= new Line(Point(	flip_X+flip_width,
-									flip_Y+flip_height/2),
-					 		Point(	flip_X+flip_width+line_width,
-					 				flip_Y+flip_height/2));
+		Line* line= new Line(Point(flip_X + flip_width, flip_Y + flip_height / 2),
+					 		Point(flip_X + flip_width + line_width, flip_Y + flip_height / 2));
 		line->set_style(Line_style(Line_style::dash, 3));
 		Line& line_ref = (*line);
+		
 		lines.push_back(line);
 
 		attach(line_ref);
 		attach(flip_ref);
 	}
-
-	cout << "Buttons were generated\n";
 }
 
 void Game_windows::cb_replay(Address, Address pw)		//callback for FLTK
@@ -884,11 +857,10 @@ void Game_windows::cb_game_go_back(Address, Address pw)		//callback for FLTK
 
 void Game_windows::game_go_back()
 {
-	score=0;
+	score = 0;
 	detach(menu_button);
 	detach(replay);
 	go_back();
-	
 }
 
 void Game_windows::do_replay()
@@ -901,46 +873,49 @@ void Game_windows::do_replay()
 
 void Game_windows::odd_flip(int num_to_flip, int p_cakes, int midpoint)
 {
+	int yposa, yposb, move, swapY;
+	
 	if (num_to_flip % 2 == 1)						//odd num flip
 	{	
 		for (int i = 0; i < midpoint + 1; ++i)
 		{
-			int yposa = pancakes[p_cakes - midpoint + i - 1]->yPos();
-			int yposb = pancakes[p_cakes - midpoint - i - 1]->yPos();
-			int move = yposb - yposa;
+			yposa = pancakes[p_cakes - midpoint + i - 1]->yPos();
+			yposb = pancakes[p_cakes - midpoint - i - 1]->yPos();
+			move = yposb - yposa;
 
 			pancakes[p_cakes - midpoint + i - 1]->move(0, move);
 			pancakes[p_cakes - midpoint - i - 1]->move(0, -move);
 
-			int swapY = yposa; //assign new swapped y values
+			swapY = yposa; //assign new swapped y values
 			pancakes[p_cakes - midpoint + i - 1]->set_yPos(yposb);
 			pancakes[p_cakes - midpoint - i - 1]->set_yPos(swapY);
 
 			swap(pancakes[p_cakes - midpoint + i - 1],	//swap rects in array
 				pancakes[p_cakes - midpoint - i - 1]);
 		}
+		
 		Fl::redraw();
 	}
 }
 
 void Game_windows::even_flip(int num_to_flip, int p_cakes, int midpoint)
 {
+	int yposa, yposb, move, swapY;
 	if (num_to_flip % 2 == 0)						//even number flip
 	{ 											
 		for (int i = 0; i < midpoint; ++i)
 		{	
-			int yposa = pancakes[p_cakes - midpoint + i]->yPos();//get y's
-			int yposb = pancakes[p_cakes - midpoint - i - 1]->yPos();
-			int move = yposb - yposa;
+			yposa = pancakes[p_cakes - midpoint + i]->yPos();//get y's
+			yposb = pancakes[p_cakes - midpoint - i - 1]->yPos();
+			move = yposb - yposa;
 
 			//moves the pancakes to the other's position
 			pancakes[p_cakes - midpoint + i]->move(0, move);
 			pancakes[p_cakes - midpoint - i - 1]->move(0, -move);
 
-
 			//assigns new swapped y values since move doesn't record
 			// them :(
-			int swapY = yposa; 
+			swapY = yposa; 
 			pancakes[p_cakes-midpoint + i]->set_yPos(yposb);
 			pancakes[p_cakes-midpoint - i - 1]->set_yPos(swapY);
 
@@ -952,6 +927,7 @@ void Game_windows::even_flip(int num_to_flip, int p_cakes, int midpoint)
 			swap(pancakes[p_cakes - midpoint + i],
 				pancakes[p_cakes - midpoint - i - 1]);
 		}
+		
 		Fl::redraw();//save cycles? by redrawing only once
 	}
 }
