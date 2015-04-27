@@ -9,7 +9,7 @@ objects  := $(patsubst %.C, %.o, $(srcfiles))
 all: $(appname)
 
 run: $(appname)
-		./flips
+		./a.out
 
 #$(appname): $(objects) 
 #		$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $(appname) $(objects) $(LDLIBS)
