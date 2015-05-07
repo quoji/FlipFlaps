@@ -72,6 +72,8 @@ struct Game_windows : Graph_lib::Window
 									int pheight, int flip_Y, int flip_X, 
 									int flip_width,int flip_height);
 		
+		void handle_flip(bool lose);
+		void check_win_condition(bool lose, bool win, int score);
 		int calculate_score(int flips);
 		void do_flip(int flip_id);
 		void you_win();
